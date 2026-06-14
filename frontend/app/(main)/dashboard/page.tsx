@@ -13,7 +13,7 @@ import { cheongan } from '@/common/const/cheonganConst';
 import { ohaeng } from '@/common/const/ohaengConst';
 import { jiji } from '@/common/const/jijiConst';
 
-import { calculateInitialIdx } from '@/common/util/commonFunc';
+import { calculateCurrentDaeun } from '@/common/util/commonFunc';
 import { makeBgColor, defaultTextColor, makeColorName } from '@/common/util/colorFunc';
 
 import EchartComp from '@/common/lib/EchartComp';
@@ -214,11 +214,8 @@ export default function DashboardPage() {
     }, [yearEleListData, elementListData]);
 
     const smallContList = useMemo(() => {
-        const targetDaeunIdx =
-            profileData && data
-                ? calculateInitialIdx(profileData, data.daeun, data.seun).daeunIdx
-                : 0;
-        const targetDaeun = data ? data.daeun[targetDaeunIdx] : null;
+        const targetDaeun =
+            profileData && data ? calculateCurrentDaeun(profileData, data.daeun) : null;
 
         let overElement = elementListData.filter((item) => item.standard === '과다');
         if (overElement.length === 0) {
@@ -275,14 +272,28 @@ export default function DashboardPage() {
             },
             {
                 title: '현재 대운',
-                children: targetDaeun && (
+                children: (
                     <div className="flex flex-row justify-center items-center gap-2">
-                        <div className={`flex flex-row justify-center items-center`}>
-                            <ElementBoxComp name={targetDaeun.gan} type="gan" size="small" />
-                        </div>
-                        <div className={`flex flex-row justify-center items-center`}>
-                            <ElementBoxComp name={targetDaeun.jiji} type="jiji" size="small" />
-                        </div>
+                        {targetDaeun != null ? (
+                            <>
+                                <div className={`flex flex-row justify-center items-center`}>
+                                    <ElementBoxComp
+                                        name={targetDaeun.gan}
+                                        type="gan"
+                                        size="small"
+                                    />
+                                </div>
+                                <div className={`flex flex-row justify-center items-center`}>
+                                    <ElementBoxComp
+                                        name={targetDaeun.jiji}
+                                        type="jiji"
+                                        size="small"
+                                    />
+                                </div>
+                            </>
+                        ) : (
+                            <div>해당 대운이 없습니다.</div>
+                        )}
                     </div>
                 ),
             },

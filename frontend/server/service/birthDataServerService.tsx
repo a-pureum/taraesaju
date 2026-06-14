@@ -123,7 +123,6 @@ export const createBirthChartColData = (
     //targetYear && targetDivision
     const _yearColumn = calculateYearColumn(targetYear);
     const _monthColumn = calculateMonthColumn(solarBirth, _yearColumn.gan, targetDivision);
-
     const _dayColumn = calculateDayColumn(solarBirth);
     const _timeColumn = correctBirth.time
         ? calculateTimeColumn(
@@ -135,6 +134,7 @@ export const createBirthChartColData = (
         : null;
 
     const _columnRelation = columnRelation(_yearColumn, _monthColumn, _dayColumn, _timeColumn);
+
     const _columnSipsin = columnSipsinData(_yearColumn, _monthColumn, _dayColumn, _timeColumn);
     const _columnCheonDuplication = checkDuplication(
         _yearColumn.gan,
@@ -412,20 +412,27 @@ export const calculateTimeColumn = (
 ): BirthColumnItem<CheonganType, JijiType> => {
     const birthDateTime = dayjs(`${date}T${time}`, 'YYYY-MM-DDTHH:mm');
 
-    const timeJiji = isCalculateDate
-        ? '자'
-        : Object.entries(jiji).find(([key, value]) => {
-              let startDateTime = dayjs(`${date}T${value.startTime}`, 'YYYY-MM-DDTHH:mm');
-              const endDateTime = dayjs(`${date}T${value.endTime}`, 'YYYY-MM-DDTHH:mm');
+    const timeJiji =
+        !isCalculateDate &&
+        (Object.entries(jiji).find(([key, value]) => {
+            const startDateTime = dayjs(`${date}T${value.startTime}`, 'YYYY-MM-DDTHH:mm');
+            const endDateTime = dayjs(`${date}T${value.endTime}`, 'YYYY-MM-DDTHH:mm');
 
-              if (key === '자') {
-                  startDateTime = startDateTime.subtract(1, 'days');
-              }
-
-              return (
-                  birthDateTime.isSameOrAfter(startDateTime) && birthDateTime.isBefore(endDateTime)
-              );
-          })?.[0];
+            if (key === '자') {
+                return (
+                    (birthDateTime.isSameOrAfter(startDateTime.subtract(1, 'day')) &&
+                        birthDateTime.isBefore(endDateTime)) ||
+                    (birthDateTime.isSameOrAfter(startDateTime) &&
+                        birthDateTime.isBefore(endDateTime.add(1, 'day')))
+                );
+            } else {
+                return (
+                    birthDateTime.isSameOrAfter(startDateTime) &&
+                    birthDateTime.isBefore(endDateTime)
+                );
+            }
+        })?.[0] ??
+            '자');
 
     const timeGan = findTimeCheongan(dayCheongan, timeJiji as JijiType);
 
