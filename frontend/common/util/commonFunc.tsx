@@ -5,6 +5,9 @@ import KoreanLunarCalendar from 'korean-lunar-calendar';
 /** Type & Interface */
 import { birthDataInterface } from '@/client/birthDataService';
 import { DaeunData, SeunData } from '@/common/type/luckyDataInterface';
+import { cheongan } from '../const/cheonganConst';
+import { CheonganType, JijiType } from '../type/basicType';
+import { jiji } from '../const/jijiConst';
 
 export const calculateCalendar = (profileData: birthDataInterface) => {
     const calendar = new KoreanLunarCalendar();
@@ -60,4 +63,42 @@ export const calculateInitialIdx = (
         daeunIdx: daeunIdx,
         seunIdx: seunIdx,
     };
+};
+
+export const calculateCurrentDaeun = (
+    profileData: birthDataInterface,
+    daeun: DaeunData[],
+): Pick<DaeunData, 'gan' | 'jiji'> | null => {
+    const _calender = calculateCalendar(profileData);
+    if (_calender) {
+        const solarDate = _calender.getSolarCalendar();
+        const currentYear = dayjs().year();
+        const diff = currentYear - solarDate.year + 1;
+
+        const daeunNum = daeun[0].daeunNum;
+        const currentDaeunIdx = Math.floor((diff - daeunNum) / 10);
+
+        if (currentDaeunIdx <= 0) return null;
+
+        if (currentDaeunIdx + 1 <= daeun.length) {
+            return daeun[currentDaeunIdx];
+        } else {
+            const flowNum = daeun[0].flowStr === '순행' ? 1 : -1;
+            const idxDiff = (currentDaeunIdx - daeun.length + 1) * flowNum;
+            const cheonganList = Object.entries(cheongan);
+            const jijiList = Object.entries(jiji);
+
+            const currentGan =
+                cheonganList[(cheongan[daeun[daeun.length - 1].gan].number + idxDiff + 10) % 10];
+            const currentJiji =
+                jijiList[(jiji[daeun[daeun.length - 1].jiji].number + idxDiff + 12) % 12];
+
+            return {
+                gan: currentGan[0] as CheonganType,
+                jiji: currentJiji[0] as JijiType,
+            };
+        }
+    }
+
+    return null;
 };
