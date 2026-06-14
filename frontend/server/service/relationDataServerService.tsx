@@ -461,68 +461,65 @@ const checkJijiBanghapRelation = (
         time: [],
     };
 
-    columnNameList.forEach((item) => {
-        switch (item) {
-            case '월_일_시':
-            case '년_월_일':
-            case '년_일_시':
-                const _data = {
-                    name: dayJiObj.banghap.join() + ' 방합',
-                    isClose: true,
-                    columnName: item,
-                };
+    //하나라도 해당되면 stop
+    let isBanghap = false;
 
-                if (
-                    item === '월_일_시' &&
-                    timeJi &&
-                    dayJiObj.banghap.includes(monthJi) &&
-                    dayJiObj.banghap.includes(dayJi) &&
-                    dayJiObj.banghap.includes(timeJi)
-                ) {
-                    relationList.month.push(_data);
-                    relationList.day.push(_data);
-                    relationList.time?.push(_data);
-                } else if (
-                    item === '년_월_일' &&
-                    dayJiObj.banghap.includes(yearJi) &&
-                    dayJiObj.banghap.includes(monthJi) &&
-                    dayJiObj.banghap.includes(dayJi)
-                ) {
-                    relationList.year.push(_data);
-                    relationList.month.push(_data);
-                    relationList.day.push(_data);
-                } else if (
-                    item === '년_일_시' &&
-                    timeJi &&
-                    dayJiObj.banghap.includes(yearJi) &&
-                    dayJiObj.banghap.includes(dayJi) &&
-                    dayJiObj.banghap.includes(timeJi)
-                ) {
-                    relationList.year.push(_data);
-                    relationList.day.push(_data);
-                    relationList.time?.push(_data);
-                }
-                break;
+    for (let i = 0; i < columnNameList.length; i++) {
+        const item = columnNameList[i];
+        if (item.includes('일')) {
+            const _data = {
+                name: dayJiObj.samhap.join() + ' 삼합',
+                isClose: true,
+                columnName: item,
+            };
 
-            default:
-                const _yeardata = {
-                    name: yearJiObj.banghap.join() + ' 방합',
-                    isClose: true,
-                    columnName: item,
-                };
-                if (
-                    item === '년_월_시' &&
-                    timeJi &&
-                    yearJiObj.banghap.includes(yearJi) &&
-                    yearJiObj.banghap.includes(monthJi) &&
-                    yearJiObj.banghap.includes(timeJi)
-                ) {
-                    relationList.year.push(_yeardata);
-                    relationList.month.push(_yeardata);
-                    relationList.time?.push(_yeardata);
-                }
+            if (
+                item === '월_일_시' &&
+                timeJi &&
+                hasSamhapOrhyung(dayJiObj.samhap, [monthJi, dayJi, timeJi])
+            ) {
+                relationList.month.push(_data);
+                relationList.day.push(_data);
+                relationList.time?.push(_data);
+                isBanghap = true;
+            } else if (
+                item === '년_월_일' &&
+                hasSamhapOrhyung(dayJiObj.samhap, [yearJi, monthJi, dayJi])
+            ) {
+                relationList.year.push(_data);
+                relationList.month.push(_data);
+                relationList.day.push(_data);
+                isBanghap = true;
+            } else if (
+                item === '년_일_시' &&
+                timeJi &&
+                hasSamhapOrhyung(dayJiObj.samhap, [yearJi, dayJi, timeJi])
+            ) {
+                relationList.year.push(_data);
+                relationList.day.push(_data);
+                relationList.time?.push(_data);
+                isBanghap = true;
+            }
+        } else {
+            const _yeardata = {
+                name: yearJiObj.samhap.join() + ' 삼합',
+                isClose: true,
+                columnName: item,
+            };
+            if (
+                item === '년_월_시' &&
+                timeJi &&
+                hasSamhapOrhyung(yearJiObj.samhap, [yearJi, monthJi, timeJi])
+            ) {
+                relationList.year.push(_yeardata);
+                relationList.month.push(_yeardata);
+                relationList.time?.push(_yeardata);
+                isBanghap = true;
+            }
         }
-    });
+
+        if (isBanghap) break;
+    }
 
     return relationList;
 };
@@ -548,80 +545,68 @@ const checkJijiSamhapRelation = (
     };
 
     let isSamhap = false;
-    columnNameList.forEach((item) => {
-        switch (item) {
-            case '월_일_시':
-            case '년_월_일':
-            case '년_일_시':
-                const _data = {
-                    name: dayJiObj.samhap.join() + ' 삼합',
-                    isClose: true,
-                    columnName: item,
-                };
 
-                if (
-                    item === '월_일_시' &&
-                    timeJi &&
-                    dayJiObj.samhap.includes(monthJi) &&
-                    dayJiObj.samhap.includes(dayJi) &&
-                    dayJiObj.samhap.includes(timeJi)
-                ) {
-                    relationList.month.push(_data);
-                    relationList.day.push(_data);
-                    relationList.time?.push(_data);
-                    isSamhap = true;
-                } else if (
-                    item === '년_월_일' &&
-                    dayJiObj.samhap.includes(yearJi) &&
-                    dayJiObj.samhap.includes(monthJi) &&
-                    dayJiObj.samhap.includes(dayJi)
-                ) {
-                    relationList.year.push(_data);
-                    relationList.month.push(_data);
-                    relationList.day.push(_data);
-                    isSamhap = true;
-                } else if (
-                    item === '년_일_시' &&
-                    timeJi &&
-                    dayJiObj.samhap.includes(yearJi) &&
-                    dayJiObj.samhap.includes(dayJi) &&
-                    dayJiObj.samhap.includes(timeJi)
-                ) {
-                    relationList.year.push(_data);
-                    relationList.day.push(_data);
-                    relationList.time?.push(_data);
-                    isSamhap = true;
-                }
-                break;
+    //하나라도 해당되면 stop
+    for (let i = 0; i < columnNameList.length; i++) {
+        const item = columnNameList[i];
+        if (item.includes('일')) {
+            const _data = {
+                name: dayJiObj.samhap.join() + ' 삼합',
+                isClose: true,
+                columnName: item,
+            };
 
-            default:
-                const _yeardata = {
-                    name: yearJiObj.samhap.join() + ' 삼합',
-                    isClose: true,
-                    columnName: item,
-                };
-                if (
-                    item === '년_월_시' &&
-                    timeJi &&
-                    yearJiObj.samhap.includes(yearJi) &&
-                    yearJiObj.samhap.includes(monthJi) &&
-                    yearJiObj.samhap.includes(timeJi)
-                ) {
-                    relationList.year.push(_yeardata);
-                    relationList.month.push(_yeardata);
-                    relationList.time?.push(_yeardata);
-                    isSamhap = true;
-                }
+            if (
+                item === '월_일_시' &&
+                timeJi &&
+                hasSamhapOrhyung(dayJiObj.samhap, [monthJi, dayJi, timeJi])
+            ) {
+                relationList.month.push(_data);
+                relationList.day.push(_data);
+                relationList.time?.push(_data);
+                isSamhap = true;
+            } else if (
+                item === '년_월_일' &&
+                hasSamhapOrhyung(dayJiObj.samhap, [yearJi, monthJi, dayJi])
+            ) {
+                relationList.year.push(_data);
+                relationList.month.push(_data);
+                relationList.day.push(_data);
+                isSamhap = true;
+            } else if (
+                item === '년_일_시' &&
+                timeJi &&
+                hasSamhapOrhyung(dayJiObj.samhap, [yearJi, dayJi, timeJi])
+            ) {
+                relationList.year.push(_data);
+                relationList.day.push(_data);
+                relationList.time?.push(_data);
+                isSamhap = true;
+            }
+        } else {
+            const _yeardata = {
+                name: yearJiObj.samhap.join() + ' 삼합',
+                isClose: true,
+                columnName: item,
+            };
+            if (
+                item === '년_월_시' &&
+                timeJi &&
+                hasSamhapOrhyung(yearJiObj.samhap, [yearJi, monthJi, timeJi])
+            ) {
+                relationList.year.push(_yeardata);
+                relationList.month.push(_yeardata);
+                relationList.time?.push(_yeardata);
+                isSamhap = true;
+            }
         }
-    });
+
+        if (isSamhap) break;
+    }
 
     if (!isSamhap) {
         //일지와 월지 합
-        if (
-            dayJiObj.samhap.includes(monthJi) &&
-            dayJiObj.samhapWangji === dayJi &&
-            dayJiObj.samhapWangji === monthJi
-        ) {
+        if (hasBanhapOrHyung(dayJiObj.samhap, dayJiObj.samhapWangji, dayJi, monthJi)) {
             const _data = {
                 name: dayJiObj.samhap.join() + ' 반합',
                 isClose: true,
@@ -634,9 +619,7 @@ const checkJijiSamhapRelation = (
             //연지와 시지 합
             if (
                 timeJi &&
-                yearJiObj.samhap.includes(timeJi) &&
-                yearJiObj.samhapWangji === timeJi &&
-                yearJiObj.samhapWangji === timeJi
+                hasBanhapOrHyung(yearJiObj.samhap, yearJiObj.samhapWangji, yearJi, timeJi)
             ) {
                 const _data = {
                     name: yearJiObj.samhap.join() + ' 반합',
@@ -652,9 +635,7 @@ const checkJijiSamhapRelation = (
         //일지와 시지 합
         else if (
             timeJi &&
-            dayJiObj.samhap.includes(timeJi) &&
-            dayJiObj.samhapWangji === timeJi &&
-            dayJiObj.samhapWangji === timeJi
+            hasBanhapOrHyung(dayJiObj.samhap, dayJiObj.samhapWangji, dayJi, timeJi)
         ) {
             const _data = {
                 name: dayJiObj.samhap.join() + ' 반합',
@@ -666,11 +647,7 @@ const checkJijiSamhapRelation = (
             relationList.time?.push(_data);
 
             //연지과 월지 합
-            if (
-                yearJiObj.samhap.includes(monthJi) &&
-                yearJiObj.samhapWangji === monthJi &&
-                yearJiObj.samhapWangji === monthJi
-            ) {
+            if (hasBanhapOrHyung(yearJiObj.samhap, yearJiObj.samhapWangji, yearJi, monthJi)) {
                 const _data = {
                     name: yearJiObj.samhap.join() + ' 반합',
                     isClose: true,
@@ -683,11 +660,7 @@ const checkJijiSamhapRelation = (
         }
 
         //일지와 연지의 합
-        else if (
-            dayJiObj.samhap.includes(yearJi) &&
-            dayJiObj.samhapWangji === yearJi &&
-            dayJiObj.samhapWangji === yearJi
-        ) {
+        else if (hasBanhapOrHyung(dayJiObj.samhap, dayJiObj.samhapWangji, dayJi, yearJi)) {
             const _data = {
                 name: dayJiObj.samhap.join() + ' 반합',
                 isClose: false,
@@ -700,9 +673,7 @@ const checkJijiSamhapRelation = (
             //월지와 시지 합
             if (
                 timeJi &&
-                monthJiObj.samhap.includes(timeJi) &&
-                monthJiObj.samhapWangji === timeJi &&
-                monthJiObj.samhapWangji === timeJi
+                hasBanhapOrHyung(monthJiObj.samhap, monthJiObj.samhapWangji, monthJi, timeJi)
             ) {
                 const _data = {
                     name: monthJiObj.samhap.join() + ' 반합',
@@ -715,11 +686,7 @@ const checkJijiSamhapRelation = (
             }
         } else {
             //연지과 월지 합
-            if (
-                yearJiObj.samhap.includes(monthJi) &&
-                yearJiObj.samhapWangji === monthJi &&
-                yearJiObj.samhapWangji === monthJi
-            ) {
+            if (hasBanhapOrHyung(yearJiObj.samhap, yearJiObj.samhapWangji, yearJi, monthJi)) {
                 const _data = {
                     name: yearJiObj.samhap.join() + ' 반합',
                     isClose: true,
@@ -733,9 +700,7 @@ const checkJijiSamhapRelation = (
             //월지와 시지 합
             if (
                 timeJi &&
-                monthJiObj.samhap.includes(timeJi) &&
-                monthJiObj.samhapWangji === timeJi &&
-                monthJiObj.samhapWangji === timeJi
+                hasBanhapOrHyung(monthJiObj.samhap, monthJiObj.samhapWangji, monthJi, timeJi)
             ) {
                 const _data = {
                     name: monthJiObj.samhap.join() + ' 반합',
@@ -750,9 +715,7 @@ const checkJijiSamhapRelation = (
             //연지와 시지 합
             if (
                 timeJi &&
-                yearJiObj.samhap.includes(timeJi) &&
-                yearJiObj.samhapWangji === timeJi &&
-                yearJiObj.samhapWangji === timeJi
+                hasBanhapOrHyung(yearJiObj.samhap, yearJiObj.samhapWangji, yearJi, timeJi)
             ) {
                 const _data = {
                     name: yearJiObj.samhap.join() + ' 반합',
@@ -850,76 +813,68 @@ const checkJijiSamhyungRelation = (
     };
 
     let isSamhyung = false;
-    columnNameList.forEach((item) => {
-        switch (item) {
-            case '월_일_시':
-            case '년_월_일':
-            case '년_일_시':
-                const _data = {
-                    name: dayJiObj.samhyung.join() + ' 삼형',
-                    isClose: true,
-                    columnName: item,
-                };
 
-                if (
-                    item === '월_일_시' &&
-                    timeJi &&
-                    dayJiObj.samhyung.includes(monthJi) &&
-                    dayJiObj.samhyung.includes(dayJi) &&
-                    dayJiObj.samhyung.includes(timeJi)
-                ) {
-                    relationList.month.push(_data);
-                    relationList.day.push(_data);
-                    relationList.time?.push(_data);
-                    isSamhyung = true;
-                } else if (
-                    item === '년_월_일' &&
-                    dayJiObj.samhyung.includes(yearJi) &&
-                    dayJiObj.samhyung.includes(monthJi) &&
-                    dayJiObj.samhyung.includes(dayJi)
-                ) {
-                    relationList.year.push(_data);
-                    relationList.month.push(_data);
-                    relationList.day.push(_data);
-                    isSamhyung = true;
-                } else if (
-                    item === '년_일_시' &&
-                    timeJi &&
-                    dayJiObj.samhyung.includes(yearJi) &&
-                    dayJiObj.samhyung.includes(dayJi) &&
-                    dayJiObj.samhyung.includes(timeJi)
-                ) {
-                    relationList.year.push(_data);
-                    relationList.day.push(_data);
-                    relationList.time?.push(_data);
-                    isSamhyung = true;
-                }
-                break;
+    //하나라도 해당되면 stop
+    for (let i = 0; i < columnNameList.length; i++) {
+        const item = columnNameList[i];
+        if (item.includes('일')) {
+            const _data = {
+                name: dayJiObj.samhyung.join() + ' 삼형',
+                isClose: true,
+                columnName: item,
+            };
 
-            default:
-                const _yeardata = {
-                    name: yearJiObj.samhap.join() + ' 삼형',
-                    isClose: true,
-                    columnName: item,
-                };
-                if (
-                    item === '년_월_시' &&
-                    timeJi &&
-                    yearJiObj.samhyung.includes(yearJi) &&
-                    yearJiObj.samhyung.includes(monthJi) &&
-                    yearJiObj.samhyung.includes(timeJi)
-                ) {
-                    relationList.year.push(_yeardata);
-                    relationList.month.push(_yeardata);
-                    relationList.time?.push(_yeardata);
-                    isSamhyung = true;
-                }
+            if (
+                item === '월_일_시' &&
+                timeJi &&
+                hasSamhapOrhyung(dayJiObj.samhyung, [monthJi, dayJi, timeJi])
+            ) {
+                relationList.month.push(_data);
+                relationList.day.push(_data);
+                relationList.time?.push(_data);
+                isSamhyung = true;
+            } else if (
+                item === '년_월_일' &&
+                hasSamhapOrhyung(dayJiObj.samhyung, [yearJi, monthJi, dayJi])
+            ) {
+                relationList.year.push(_data);
+                relationList.month.push(_data);
+                relationList.day.push(_data);
+                isSamhyung = true;
+            } else if (
+                item === '년_일_시' &&
+                timeJi &&
+                hasSamhapOrhyung(dayJiObj.samhyung, [yearJi, dayJi, timeJi])
+            ) {
+                relationList.year.push(_data);
+                relationList.day.push(_data);
+                relationList.time?.push(_data);
+                isSamhyung = true;
+            }
+        } else {
+            const _yeardata = {
+                name: yearJiObj.samhyung.join() + ' 삼형',
+                isClose: true,
+                columnName: item,
+            };
+            if (
+                item === '년_월_시' &&
+                timeJi &&
+                hasSamhapOrhyung(yearJiObj.samhyung, [yearJi, monthJi, timeJi])
+            ) {
+                relationList.year.push(_yeardata);
+                relationList.month.push(_yeardata);
+                relationList.time?.push(_yeardata);
+                isSamhyung = true;
+            }
         }
-    });
+
+        if (isSamhyung) break;
+    }
 
     if (!isSamhyung) {
         //일지와 월지 형
-        if (dayJiObj.samhyung.includes(monthJi)) {
+        if (hasBanhapOrHyung(dayJiObj.samhyung, null, dayJi, monthJi)) {
             const _data = {
                 name: dayJiObj.samhyung.join() + ' 반형',
                 isClose: true,
@@ -929,8 +884,8 @@ const checkJijiSamhyungRelation = (
             relationList.month.push(_data);
             relationList.day.push(_data);
 
-            //연지와 시지 형
-            if (timeJi && yearJiObj.samhyung.includes(timeJi)) {
+            //연지와 시지 합
+            if (timeJi && hasBanhapOrHyung(yearJiObj.samhyung, null, yearJi, timeJi)) {
                 const _data = {
                     name: yearJiObj.samhyung.join() + ' 반형',
                     isClose: false,
@@ -942,8 +897,8 @@ const checkJijiSamhyungRelation = (
             }
         }
 
-        //일지와 시지 형
-        else if (timeJi && dayJiObj.samhyung.includes(timeJi)) {
+        //일지와 시지 합
+        else if (timeJi && hasBanhapOrHyung(dayJiObj.samhyung, null, dayJi, timeJi)) {
             const _data = {
                 name: dayJiObj.samhyung.join() + ' 반형',
                 isClose: true,
@@ -953,8 +908,8 @@ const checkJijiSamhyungRelation = (
             relationList.day.push(_data);
             relationList.time?.push(_data);
 
-            //연지과 월지 형
-            if (yearJiObj.samhyung.includes(monthJi)) {
+            //연지과 월지 합
+            if (hasBanhapOrHyung(yearJiObj.samhyung, null, yearJi, monthJi)) {
                 const _data = {
                     name: yearJiObj.samhyung.join() + ' 반형',
                     isClose: true,
@@ -966,10 +921,10 @@ const checkJijiSamhyungRelation = (
             }
         }
 
-        //일지와 연지 형
-        else if (dayJiObj.samhyung.includes(yearJi)) {
+        //일지와 연지의 합
+        else if (hasBanhapOrHyung(dayJiObj.samhyung, null, dayJi, yearJi)) {
             const _data = {
-                name: dayJiObj.samhyung.join() + ' 반형',
+                name: dayJiObj.samhyung.join() + ' 반합',
                 isClose: false,
                 columnName: '년_일',
             };
@@ -977,10 +932,10 @@ const checkJijiSamhyungRelation = (
             relationList.day.push(_data);
             relationList.year.push(_data);
 
-            //월지와 시지 형
-            if (timeJi && monthJiObj.samhyung.includes(timeJi)) {
+            //월지와 시지 합
+            if (timeJi && hasBanhapOrHyung(monthJiObj.samhyung, null, monthJi, timeJi)) {
                 const _data = {
-                    name: monthJiObj.samhyung.join() + ' 반형',
+                    name: monthJiObj.samhyung.join() + ' 반합',
                     isClose: false,
                     columnName: '월_시',
                 };
@@ -989,10 +944,10 @@ const checkJijiSamhyungRelation = (
                 relationList.time?.push(_data);
             }
         } else {
-            //연지과 월지 형
-            if (yearJiObj.samhyung.includes(monthJi)) {
+            //연지과 월지 합
+            if (hasBanhapOrHyung(yearJiObj.samhyung, null, yearJi, monthJi)) {
                 const _data = {
-                    name: yearJiObj.samhyung.join() + ' 반형',
+                    name: yearJiObj.samhyung.join() + ' 반합',
                     isClose: true,
                     columnName: '년_월',
                 };
@@ -1001,10 +956,10 @@ const checkJijiSamhyungRelation = (
                 relationList.month.push(_data);
             }
 
-            //월지와 시지 형
-            if (timeJi && monthJiObj.samhyung.includes(timeJi)) {
+            //월지와 시지 합
+            if (timeJi && hasBanhapOrHyung(monthJiObj.samhyung, null, monthJi, timeJi)) {
                 const _data = {
-                    name: monthJiObj.samhyung.join() + ' 반형',
+                    name: monthJiObj.samhyung.join() + ' 반합',
                     isClose: false,
                     columnName: '월_시',
                 };
@@ -1013,10 +968,10 @@ const checkJijiSamhyungRelation = (
                 relationList.time?.push(_data);
             }
 
-            //연지와 시지 형
-            if (timeJi && yearJiObj.samhyung.includes(timeJi)) {
+            //연지와 시지 합
+            if (timeJi && hasBanhapOrHyung(yearJiObj.samhyung, null, yearJi, timeJi)) {
                 const _data = {
-                    name: yearJiObj.samhyung.join() + ' 반형',
+                    name: yearJiObj.samhyung.join() + ' 반합',
                     isClose: false,
                     columnName: '년_시',
                 };
@@ -1427,4 +1382,34 @@ const checkJijiPaRelation = (
     }
 
     return relationList;
+};
+
+const hasSamhapOrhyung = (samList: string[], targets: string[]) => {
+    //samList가 비어있는가
+    if (samList.length === 0) return false;
+
+    const uniqueTargets = new Set(targets);
+
+    return uniqueTargets.size >= 3 && samList.every((item) => uniqueTargets.has(item));
+};
+
+const hasBanhapOrHyung = (
+    samList: string[],
+    wangji: string | null,
+    first: string,
+    second: string,
+) => {
+    //samList가 비어있는가
+    if (samList.length === 0) return false;
+
+    // 중복 지지 제거
+    if (first === second) return false;
+
+    // 둘 다 삼합 구성원인가
+    if (!samList.includes(first) || !samList.includes(second)) {
+        return false;
+    }
+
+    // 둘 중 하나가 왕지인가
+    return wangji && (first === wangji || second === wangji);
 };
